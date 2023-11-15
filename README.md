@@ -24,7 +24,7 @@ These instructions will get you a copy of the project up and running on your loc
    ```sh
     npm install
 
-3. Add your OpenAI api key in place of `YOUR-KEY` in app.tsx
+3. Add your OpenAI api key in place of `KEY` in app.tsx and add your prompts in prompts[] in prompts.tsx .
 
 4. Usage
 
