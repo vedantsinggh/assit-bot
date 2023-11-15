@@ -1,7 +1,14 @@
-import axios from 'axios';
 import React, { useState } from 'react';
 import { ScrollView, TextInput, TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import axios from 'axios';
+import { prompts } from './prompts';
+
+var msg: {"role": string, "content": string}[] = [];
+  
+for (let x of prompts) {
+	msg.push({"role": "system", "content": x});
+}
 
 interface IMessage {
   id: string;
@@ -24,7 +31,6 @@ const App = () => {
 
     setMessages([...messages, userMessage]);
 
-    // Replace this with the actual API call
     const response = await getChatGPTResponse(input);
 
     const botMessage: IMessage = {
@@ -39,23 +45,25 @@ const App = () => {
   };
 
   const getChatGPTResponse = async (message: string): Promise<string> => {
+    msg.push({"role": "user", "content": message});
     try {
       const response = await axios.post(
-        'https://api.openai.com/v1/engines/davinci-codex/completions',
+        'https://api.openai.com/v1/chat/completions',
         {
-          prompt: message,
-          max_tokens: 60,
+          "model": "gpt-3.5-turbo-1106",
+          "messages": msg
         },
         {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer API`,
+            Authorization: `Bearer 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`,
           },
         }
       );
   
       if (response.data && response.data.choices && response.data.choices.length > 0) {
-        return response.data.choices[0].text.trim();
+        msg.push({role: "assistant", content: response.data.choices[0].message.content.toString().trim()});
+        return response.data.choices[0].message.content.toString().trim();
       } else {
         throw new Error('No response from ChatGPT');
       }
@@ -63,8 +71,7 @@ const App = () => {
       console.error(error);
       return 'An error occurred while getting response from ChatGPT';
     }
-  };
-
+  }
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Assistant</Text>
